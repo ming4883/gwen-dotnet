@@ -9,10 +9,11 @@ namespace Gwen.UnitTest
             : base(parent)
         {
             Control.NumericUpDown ctrl = new Control.NumericUpDown(this);
-            ctrl.SetBounds(10, 10, 50, 20);
+            ctrl.SetBounds(10, 10, 80, 20);
             ctrl.Value = 50;
             ctrl.Max = 100;
             ctrl.Min = -100;
+            ctrl.Increment = 0.1f;
             ctrl.ValueChanged += OnValueChanged;
         }
 

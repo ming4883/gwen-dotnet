@@ -9,8 +9,9 @@ namespace Gwen.Control
     /// </summary>
     public class NumericUpDown : TextBoxNumeric
     {
-        private int m_Max;
-        private int m_Min;
+        private float m_Max;
+        private float m_Min;
+        private float m_Increment;
 
         private readonly Splitter m_Splitter;
         private readonly UpDownButton_Up m_Up;
@@ -19,12 +20,17 @@ namespace Gwen.Control
         /// <summary>
         /// Minimum value.
         /// </summary>
-        public int Min { get { return m_Min; } set { m_Min = value; } }
+        public float Min { get { return m_Min; } set { m_Min = value; } }
 
         /// <summary>
         /// Maximum value.
         /// </summary>
-        public int Max { get { return m_Max; } set { m_Max = value; } }
+        public float Max { get { return m_Max; } set { m_Max = value; } }
+        
+        /// <summary>
+        /// Maximum value.
+        /// </summary>
+        public float Increment { get { return m_Increment; } set { m_Increment = value; } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NumericUpDown"/> class.
@@ -53,6 +59,7 @@ namespace Gwen.Control
             m_Max = 100;
             m_Min = 0;
             m_Value = 0f;
+            m_Increment = 1.0f;
             Text = "0";
         }
 
@@ -93,7 +100,7 @@ namespace Gwen.Control
         /// <param name="control">Event source.</param>
 		protected virtual void OnButtonUp(Base control, EventArgs args)
         {
-            Value = m_Value + 1;
+            Value = m_Value + m_Increment;
         }
 
         /// <summary>
@@ -102,7 +109,7 @@ namespace Gwen.Control
         /// <param name="control">Event source.</param>
         protected virtual void OnButtonDown(Base control, ClickedEventArgs args)
         {
-            Value = m_Value - 1;
+            Value = m_Value - m_Increment;
         }
 
         /// <summary>
@@ -147,6 +154,13 @@ namespace Gwen.Control
             base.OnTextChanged();
             if (ValueChanged != null)
                 ValueChanged.Invoke(this, EventArgs.Empty);
+        }
+
+        public void SetRange(float minValue, float maxValue, float increment)
+        {
+            Min = minValue;
+            Max = maxValue;
+            Increment = increment;
         }
     }
 }
