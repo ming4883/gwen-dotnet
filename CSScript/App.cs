@@ -9,7 +9,8 @@ public class App : ExampleBase
 {
 	public bool Run (string path, string name)
 	{
-		using (var script = new AsmHelper (CSScript.Load (path, name + ".cs", false, null)))
+		string asmName = string.Format ("~{0}.dll", name);
+		using (var script = new AsmHelper (CSScript.Load (path, asmName, false, null)))
 		using (ExampleBase example = script.CreateObject ("Example") as ExampleBase)
 		using (GameWindow gamewindow = new GameWindow (720, 480, GraphicsMode.Default, "Example - " + name))
 		{
