@@ -1,183 +1,58 @@
-//css_co /unsafe;
-//css_reference "OpenTK.dll"
-//css_reference "Gwen.dll"
-//css_reference "Gwen.Renderer.OpenTK.dll"
+//css_import ExampleBase
 using System;
-using System.Drawing;
-using System.Threading;
+using System.IO;
+using CSScriptLibrary;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics;
 
-class App : IDisposable
+public class App : ExampleBase
 {
-	class UI
+	public bool Run (string path, string name)
 	{
-		public UI (Gwen.Control.Canvas canvas)
+		using (var script = new AsmHelper (CSScript.Load (path, name + ".cs", false, null)))
+		using (ExampleBase example = script.CreateObject ("Example") as ExampleBase)
+		using (GameWindow gamewindow = new GameWindow (720, 480, GraphicsMode.Default, "Example - " + name))
 		{
-			Gwen.Control.TabControl tab = new Gwen.Control.TabControl (canvas);
-			tab.Dock = Gwen.Pos.Fill;
-			tab.TabStripPosition =Gwen.Pos.Left;
-			
-			{
-				var pageHost = tab.AddPage ("Button");
-				{
-					Gwen.Control.Button btn = new Gwen.Control.Button (pageHost.Page);
-					btn.Height = 50;
-					btn.Dock = Gwen.Pos.Top;
-					btn.Text = "BUTTON 1";
-					btn.Clicked += (s, e) =>
-					{
-						Console.WriteLine ("BUTTON 1 clicked");
-					};
-				}
-				{
-					Gwen.Control.Button btn = new Gwen.Control.Button (pageHost.Page);
-					btn.Height = 50;
-					btn.Dock = Gwen.Pos.Top;
-					btn.Text = "BUTTON 2";
-					btn.Clicked += (s, e) =>
-					{
-						Console.WriteLine ("BUTTON 2 clicked");
-					};
-				}
-			}
-			
-			{
-				var pageHost = tab.AddPage ("TextBox");
-				
-				Gwen.Control.TextBox tbx = new Gwen.Control.TextBox (pageHost.Page);
-				tbx.Height = 50;
-				tbx.Dock = Gwen.Pos.Top;
-				tbx.SetText ("TEXTBOX");
-			}
-			
-			{
-				Gwen.Control.Properties pop = new Gwen.Control.Properties (canvas);
-				pop.Width = 300;
-				pop.Dock = Gwen.Pos.Right;
-				
-				{
-					pop.Add ("TEXT");
-				}
-				{
-					var c = new Gwen.Control.Property.Check (pop);
-					pop.Add ("CHECK", c, "1");
-				}
-				{
-					var c = new Gwen.Control.Property.Color (pop);
-					pop.Add ("COLOR", c, "255 0 0");
-				}
-				{
-					var c = new Gwen.Control.Property.Number(pop);
-					c.SetRange(0, 1, 0.1f);
-					c.SetValue(0.2f);
-					pop.Add("NUMBER", c);
-				}
-				{
-					var c = new Gwen.Control.Property.SlidingNumber(pop);
-					c.SetRange(0, 2);
-					c.SetValue(0.5f);
-					c.NotchCount = 10;
-					c.SnapToNotches = true;
-					pop.Add("SLIDING", c);
-				}
-			}
-			
+			Console.WriteLine ("Example {0} running", name);
+			example.Init (gamewindow);
+			gamewindow.Run (60.0f);
+			Console.WriteLine ("Example {0} finished", name);
 		}
 		
+		return true;
 	}
-	
-	private Gwen.Renderer.OpenTK renderer;
-	private Gwen.Skin.Base skin;
-	private Gwen.Control.Canvas canvas;
-	private Gwen.Input.OpenTK input;
-	private UI ui;
-	
-	
-	public App (GameWindow gamewindow)
+
+	public override void PostLoad ()
 	{
-		renderer = new Gwen.Renderer.OpenTK();
-		skin = new Gwen.Skin.TexturedBase (renderer, "DefaultSkin.png");
-		canvas = new Gwen.Control.Canvas (skin);
-		canvas.SetSize (gamewindow.Width, gamewindow.Height);
-		canvas.ShouldDrawBackground = true;
-		canvas.BackgroundColor = Color.FromArgb (255, 225, 225, 225);
-
-		input = new Gwen.Input.OpenTK (gamewindow);
-		input.Initialize (canvas);
+		Gwen.Control.ScrollControl root = new Gwen.Control.ScrollControl (canvas);
+		root.Dock = Gwen.Pos.Fill;
+		root.EnableScroll (false, true);
 		
-		gamewindow.Keyboard.KeyDown += (s, e) =>
+		foreach (string dir in Directory.GetDirectories ("."))
 		{
-			input.ProcessKeyDown (e);
-		};
-		gamewindow.Keyboard.KeyUp += (s, e) =>
-		{
-			input.ProcessKeyUp (e);
-		};
-
-		gamewindow.Mouse.ButtonDown += (s, e) =>
-		{
-			input.ProcessMouseMessage (e);
-		};
-		gamewindow.Mouse.ButtonUp += (s, e) =>
-		{
-			input.ProcessMouseMessage (e);
-		};
-		gamewindow.Mouse.Move += (s, e) =>
-		{
-			input.ProcessMouseMessage (e);
-		};
-		gamewindow.Mouse.WheelChanged += (s, e) =>
-		{
-			input.ProcessMouseMessage (e);
-		};
-
-		gamewindow.Load += (s, e) =>
-		{
-			gamewindow.VSync = VSyncMode.On;
+			string fullpath = Path.Combine (Path.GetFullPath (dir), "Example.cs");
 			
-			ui = new UI (canvas);
-		};
-		
-		gamewindow.Resize += (s, e) =>
-		{
-			Console.WriteLine ("App Resized to {0} {1}", gamewindow.Width, gamewindow.Height);
-			GL.Viewport (0, 0, gamewindow.Width, gamewindow.Height);
-			GL.MatrixMode (MatrixMode.Projection);
-			GL.LoadIdentity();
-			GL.Ortho (0, gamewindow.Width, gamewindow.Height, 0, -1, 1);
-
-			canvas.SetSize (gamewindow.Width, gamewindow.Height);
-		};
-		
-		gamewindow.UpdateFrame += (s, e) =>
-		{
-			if (renderer.TextCacheSize > 1000)
-				renderer.FlushTextCache();
-		};
-		
-		gamewindow.RenderFrame += (s, e) =>
-		{
-			canvas.RenderCanvas();
-			
-			gamewindow.SwapBuffers();
-		};
-	}
-	
-	public void Dispose()
-	{
-		Console.WriteLine("App Dispose");
-		
-		canvas.Dispose();
-		skin.Dispose();
-		renderer.Dispose();
+			if (File.Exists (fullpath))
+			{
+				Gwen.Control.Button btn = new Gwen.Control.Button (root);
+				btn.Height = 30;
+				btn.Text = Path.GetFileName (dir);
+				btn.Dock = Gwen.Pos.Top;
+				
+				btn.Clicked += (s, e) =>
+				{
+					Run (fullpath, btn.Text);
+				};
+			}
+		}
 	}
 	
 	static public void Main (string[] args)
 	{
-		using (GameWindow gamewindow = new GameWindow (720, 480))
-		using (App app = new App(gamewindow))
+		using (GameWindow gamewindow = new GameWindow (640, 480, GraphicsMode.Default, "Gwen Examples"))
+		using (App app = new App())
 		{
+			app.Init (gamewindow);
 			gamewindow.Run (60.0);
 		}
 	}
