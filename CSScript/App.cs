@@ -1,3 +1,5 @@
+//css_searchdir ..\GwenCS\Binaries;
+//css_searchdir ..\GwenCS\lib\OpenTK;
 //css_import ExampleBase
 using System;
 using System.IO;
