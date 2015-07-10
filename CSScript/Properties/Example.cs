@@ -1,7 +1,3 @@
-//css_reference "OpenTK.dll"
-//css_reference "Gwen.dll"
-//css_reference "Gwen.Renderer.OpenTK.dll"
-
 using System;
 
 public class Example : ExampleBase

@@ -1,5 +1,5 @@
-//css_searchdir ..\GwenCS\Binaries;
-//css_searchdir ..\GwenCS\lib\OpenTK;
+//css_searchdir ../GwenCS/Binaries;
+//css_searchdir ../GwenCS/lib/OpenTK;
 //css_import ExampleBase
 using System;
 using System.IO;
@@ -11,15 +11,22 @@ public class App : ExampleBase
 {
 	public bool Run (string path, string name)
 	{
-		string asmName = string.Format ("~{0}.dll", name);
-		using (var script = new AsmHelper (CSScript.Load (path, asmName, false, null)))
-		using (ExampleBase example = script.CreateObject ("Example") as ExampleBase)
-		using (GameWindow gamewindow = new GameWindow (720, 480, GraphicsMode.Default, "Example - " + name))
+		try
 		{
-			Console.WriteLine ("Example {0} running", name);
-			example.Init (gamewindow);
-			gamewindow.Run (60.0f);
-			Console.WriteLine ("Example {0} finished", name);
+			string asmName = string.Format ("~{0}.dll", name);
+			using (var script = new AsmHelper (CSScript.Load (path, asmName, false, null)))
+			using (ExampleBase example = script.CreateObject ("Example") as ExampleBase)
+			using (GameWindow gamewindow = new GameWindow (720, 480, GraphicsMode.Default, "Example - " + name))
+			{
+				Console.WriteLine ("Example {0} running", name);
+				example.Init (gamewindow);
+				gamewindow.Run (60.0f);
+				Console.WriteLine ("Example {0} finished", name);
+			}
+		}
+		catch (Exception err)
+		{
+			Console.WriteLine ("Example {0} failed\n{1}", name, err);
 		}
 		
 		return true;
