@@ -57,6 +57,7 @@ public class App : ExampleBase
 		}
 	}
 	
+	[MTAThread]
 	static public void Main (string[] args)
 	{
 		using (GameWindow gamewindow = new GameWindow (640, 480, GraphicsMode.Default, "Gwen Examples"))
